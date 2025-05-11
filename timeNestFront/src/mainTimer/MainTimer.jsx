@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import EditTimeModal from "./EditTimeModal";
+import TimerDisplay from "./TimerDisplay";
 
 const MainTimer = () => {
   // total seconds:
@@ -31,88 +33,56 @@ const MainTimer = () => {
     return () => clearInterval(timerId);
   });
 
-  const progressPercentage = (timeLeft / duration) * 100;
-  const minutes = Math.floor(timeLeft / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = (timeLeft % 60).toString().padStart(2, "0");
-  const progressTimeValue = `${minutes}:${seconds}`;
-
   // RENDER
   return (
-    <>
-      <div className="p-8">
-        <h1>Project: {project}</h1>
-        <div>
-          <div>
-            <CircularProgressbar
-              value={progressPercentage}
-              text={progressTimeValue}
-              className="h-[300px] w-auto"
-            />
+    <section className="bg-black h-screen">
+      <div className="container-main text-center py-[60px]">
+        <div className="space-y-8">
+          <div className="w-1/3 mx-auto">
+            <TimerDisplay
+              className="h-[300px] w-auto mx-auto"
+              timeLeft={timeLeft}
+              duration={duration}
+            ></TimerDisplay>
           </div>
-        </div>
 
-        <div className="flex space-x-2 mb-4">
-          {isRunning ? (
-            <button onClick={() => setIsRunning(false)} className="border">
-              Pause
-            </button>
-          ) : (
-            <button onClick={() => setIsRunning(true)}>Start</button>
-          )}
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setTimeLeft(duration);
-            }}
-          >
-            Reset
-          </button>
-          <button onClick={() => setIsEditOpen(true)}>Edit</button>
-        </div>
+          <h1 className="font-semibold text-2xl uppercase">Selected Project: {project}</h1>
 
-        {/* edit dialog */}
-        {isEditOpen && (
-          <div
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-            onClick={() => setIsEditOpen(false)}
-          >
-            <div
-              className="bg-white p-6 rounded shadow-lg"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2>Edit Setting</h2>
-              <label className="block mb-2">
-                <input
-                  type="number"
-                  value={duration / 60}
-                  onChange={(e) => {
-                    const mins = parseInt(e.target.value) || 0;
-                    setDuration(mins * 60);
-                    setTimeLeft(mins * 60);
-                  }}
-                  className="ml-2 border px-1"
-                />
-              </label>
-              <label className="block mb-4">
-                Project name:
-                <input
-                  type="text"
-                  value={project}
-                  onChange={(e) => setProject(e.target.value)}
-                  className="ml-2 border px-1"
-                />
-              </label>
-              <button onClick={() => setIsEditOpen(false)}>
-                {" "}
-                Save and Close
+          <div className="flex space-x-2 mb-4 items-center justify-center text-lg font-medium uppercase buttons">
+            {isRunning ? (
+              <button onClick={() => setIsRunning(false)} className="border uppercase">
+                Pause
               </button>
-            </div>
+            ) : (
+              <button  onClick={() => setIsRunning(true)}>Start</button>
+            )}
+            <button
+              onClick={() => {
+                setIsRunning(false);
+                setTimeLeft(duration);
+              }}
+            >
+              Reset
+            </button>
+            <button onClick={() => setIsEditOpen(true)}>Edit</button>
           </div>
-        )}
+
+          {/* edit dialog */}
+          {isEditOpen && (
+            <EditTimeModal
+              duration={duration}
+              setDuration={(val) => {
+                setDuration(val);
+                setTimeLeft(val);
+              }}
+              project={project}
+              setProject={setProject}
+              onClose={() => setIsEditOpen(false)}
+            ></EditTimeModal>
+          )}
+        </div>
       </div>
-    </>
+    </section>
   );
 };
 
